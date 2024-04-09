@@ -1,7 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link, json } from "react-router-dom";
 
 function Header() {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <>
       <nav className="bg-slate-300">
@@ -13,16 +16,27 @@ function Header() {
             <Link to={"/"}>
               <li>Home</li>
             </Link>
-            <Link to={'/profile'}>
+            {/* <Link to={"/profile"}>
+              <li>Profile</li>
+            </Link> */}
 
-            <li>Profile</li>
-            </Link>
-            <Link to={"/sign-in"}>
-              <li>Sign In</li>
-            </Link>
-            <Link to={'/sign-up'}>
+            {currentUser ? (
+              <div
+                style={{}}
+               
+              ><Link to={'/profile'} >
+                <img src={currentUser?.profilePhoto}   className="h-8 w-8  rounded-full object-cover" alt="Profile" />
+              </Link>
+              </div>
+            ) : (
+              <Link to={"/sign-in"}>
+                <li>Sign In</li>
+              </Link>
+            )}
+            {/* <Link to={'/sign-up'}>
+              
               <li>Sign up</li>
-            </Link>
+            </Link> */}
           </ul>
         </div>
       </nav>

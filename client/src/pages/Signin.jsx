@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { signIn, signInSuccess, signInFailure } from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import OAuth from "./OAuth";
 
 function Signin() {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(null);
-  const [error, setError] = useState(null);
+  const { loading, error } = useSelector((state) => state.user);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const navigator= useNavigate();
+  const navigator = useNavigate();
+  const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      setError(false);
+      dispatch(signIn());
       const res = await fetch("/api/auth/sign-in", {
         method: "POST",
         headers: {
@@ -22,17 +23,17 @@ function Signin() {
         },
         body: JSON.stringify(formData),
       });
-      setLoading(false);
-      const data = await res.json();
 
+      const data = await res.json();
       if (data.success === false) {
-        setError(data.message);
+        dispatch(signInFailure(data));
         return;
       }
-      navigator('/');
-    } catch (error) {
-      setLoading(false);
-      setError({ message: "someting went wrong" });
+      dispatch(signInSuccess(data));
+      navigator("/");
+    } catch (err) {
+      console.log(err);
+      dispatch(signInFailure(err));
     }
   };
   return (
@@ -75,16 +76,15 @@ function Signin() {
         >
           {loading ? "Loading..." : "sign in"}
         </button>
+        <OAuth />
         <div className="flex mx-1 gap-2">
-          <p>
-            Don't have an account? 
-          </p>
-            <Link to="/sign-up">
-              <span className="text-blue-600 ">SignUp</span>
-            </Link>
+          <p>Don't have an account?</p>
+          <Link to="/sign-up">
+            <span className="text-blue-600 ">SignUp</span>
+          </Link>
         </div>
       </form>
-      <div className="text-red-500 mx-4">{error && error}</div>
+      <div className="text-red-500 mx-4">{error ? error.message||'Something went wrong' :'' }</div>
     </div>
   );
 }
