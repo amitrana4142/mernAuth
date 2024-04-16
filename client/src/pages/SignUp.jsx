@@ -5,32 +5,40 @@ export default function SignUp() {
   const [formData, setFormData] =useState({})
   const [error,setError]= useState(false)
   const [loading,setLoading]= useState(false)
+const [inpError, setinpError] = useState(null)
   const handlechange =(e)=>{
     setFormData ({...formData,[e.target.name]:e.target.value})
-
+    setError(false)
+    
   }
   const navigator= useNavigate()
   const handleSubmit = async (e)=>{
     e.preventDefault();
     try {
-      setLoading(true)
-      setError(false)
-      const res = await fetch ('/api/auth/sign-up',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify(formData)});
-        
-        setLoading(false)
-        const data=await res.json();
-        if (data.success === false){
-          setError(true)
-          return;
+      
+      if (formData.username!== undefined && formData.email !== undefined && formData.password!==undefined){
+        setLoading(true)
+        setError(false)
+        setinpError(null)
+        const res = await fetch ('/api/auth/sign-up',{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify(formData)});
+          
+          setLoading(false)
+          const data=await res.json();
+          if (data.success === false){
+            setError(true)
+            return;
+          }
+          
+          navigator('/sign-in')
+        }else{
+            setinpError('Please fill all the details')
         }
-
-       navigator('/sign-in')
-      } catch (error) {
+        } catch (error) {
         setLoading(false)
         setError(true)
         
@@ -88,6 +96,7 @@ export default function SignUp() {
         <div className="text-red-500 mx-4 ">
           {error&&'There is an error'}
         </div>
+        <p className="text-red-500 mx-4 ">{inpError && inpError}</p>
       </div>
     </div>
   );

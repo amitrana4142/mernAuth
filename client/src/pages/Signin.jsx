@@ -7,6 +7,8 @@ import OAuth from "./OAuth";
 function Signin() {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
+  const [inpError, setinpError] = useState(null)
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -15,6 +17,8 @@ function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (formData.email !== undefined && formData.password!==undefined){
+        setinpError(null)
       dispatch(signIn());
       const res = await fetch("/api/auth/sign-in", {
         method: "POST",
@@ -31,6 +35,10 @@ function Signin() {
       }
       dispatch(signInSuccess(data));
       navigator("/");
+    }else{
+
+      setinpError('Please fill all the details')
+    }
     } catch (err) {
       console.log(err);
       dispatch(signInFailure(err));
@@ -85,6 +93,7 @@ function Signin() {
         </div>
       </form>
       <div className="text-red-500 mx-4">{error ? error.message||'Something went wrong' :'' }</div>
+      <p className="text-red-500 mx-4 ">{inpError && inpError}</p>
     </div>
   );
 }
