@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from '../models/user.model.js'
 import { errorHandler } from "../service/service.js";
-
+import bcryptjs from 'bcryptjs'
 export const verifyUser = (req, res, next) => {
   //console.log(req.cookies);
   const token = req.cookies.accessToken;
@@ -37,6 +37,21 @@ export const UpdateProfile = async (req, res, next) => {
   const { password, ...rest } = updateUser._doc;
   res.status(200).json(rest)
   } catch (error) {
-    next()
+    next(error)
   }
 };
+
+export const deleteProfile = async (req, res ,next)=>{
+  try {
+    if (req.user.id !== req.params.id){
+      return next(errorHandler(401,'Only owners are allow to delete their account'))
+    }
+    if (await User.findByIdAndDelete(req.params.id)){
+      res.status(200).json('User deleted successfully')
+
+    }
+  } catch (error) {
+    next(error)
+  }
+
+} 

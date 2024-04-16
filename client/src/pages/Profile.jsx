@@ -8,24 +8,27 @@ import {
 } from "firebase/storage";
 import { firebaseApp } from "../firebaseService";
 import {
+  deleteFail,
+  deleteStart,
+  deleteSuccess,
+  signout,
   updateFail,
   updateStart,
   updateSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 function Profile() {
   const dispatch = useDispatch();
-  const navigator = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
+  // const navigator = useNavigate();
+  const { currentUser, error, loading } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState("");
   const imageRef = useRef(null);
   const [imageProgress, setImageProgres] = useState(null);
   const [imageError, setImageError] = useState(null);
   const [imageFlie, setimageFlie] = useState(null);
-  const [error, seterror] = useState(false);
-  const [loading, setloading] = useState(false);
+  const [PUSuccess, setPUSuccess] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,8 +36,7 @@ function Profile() {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      //setloading(true)
-      // dispatch(updateStart())
+      dispatch(updateStart())
 
       const res = await fetch("/api/user/update/" + currentUser._id, {
         method: "POST",
@@ -44,16 +46,17 @@ function Profile() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
       if (data.success === false) {
         /// setloading(false)
+        setPUSuccess(false);
         dispatch(updateFail(data));
         return;
       }
       dispatch(updateSuccess(data));
+      setPUSuccess(true);
     } catch (error) {
-      console.log("error  " + error);
       dispatch(updateFail(error));
+      console.log("error  " + error);
     }
   };
 
@@ -91,12 +94,37 @@ function Profile() {
       }
     );
   };
+  const handleDeleteProfile = async () => {
+    
+    try {
+      dispatch(deleteStart())
+    const res = await fetch("/api/user/delete/" + currentUser._id, {
+      method: "delete"
+    });
+    const data = await res.json();
+    if (data.success===false){
+        dispatch(deleteFail(data))
+    }
+    dispatch(deleteSuccess(data))
+    } catch (error) {
+      dispatch(deleteFail(error))
+};
+  
+}
 
+const handleSignout = async ()=>{
+  try {
+    await fetch('/api/auth/sign-out')
+    dispatch(signout())
+  } catch (error) {
+    console.log(error);
+  }
+}
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
       <form
-        onSubmit={handleUpdateProfile}
+        onSubmit={(e) => handleUpdateProfile(e)}
         method="POST"
         className="flex flex-col gap-4 p-4"
       >
@@ -152,7 +180,7 @@ function Profile() {
           onChange={handleChange}
         />
         <input
-          type="text"
+          type="password"
           className="bg-gray-100 p-3 rounded-lg"
           name="password"
           id="userpassword"
@@ -166,13 +194,17 @@ function Profile() {
           hover:opacity-95 disabled:opacity-80"
           type="submit"
         >
-          Update Profile
+          {loading ? "Loading..." : " Update Profile"}
         </button>
       </form>
-      <div className="flex gap-20 flex-row">
-        <span className="text-red-500 cursor-pointer">Delete Account</span>
-        <span className="text-red-500 cursor-pointer">Sign out</span>
+      <div className="flex m-4 justify-between flex-row">
+        <span className="text-red-700 cursor-pointer"  onClick={handleDeleteProfile}>Delete Account</span>
+        <span className="text-red-700 cursor-pointer" onClick={handleSignout}>Sign out</span>
       </div>
+      <p className="text-red-700 ">{error && "Something went wrong!"}</p>
+      <p className="text-green-700 ">
+        {PUSuccess && "Profile updated successfully"}
+      </p>
     </div>
   );
 }
