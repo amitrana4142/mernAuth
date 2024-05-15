@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import bcryptjs from "bcryptjs";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
@@ -6,6 +7,20 @@ import Listing from "../models/listing.model.js";
 export const test = (req, res) => {
   res.json({
     message: "Api route is working!",
+=======
+import jwt from "jsonwebtoken";
+import User from '../models/user.model.js'
+import { errorHandler } from "../service/service.js";
+
+export const verifyUser = (req, res, next) => {
+  //console.log(req.cookies);
+  const token = req.cookies.accessToken;
+  if (!token) return next(errorHandler(401,'Please Log in'))
+  jwt.verify(token, process.env.JWT_TOKEN, (err, user) => {
+    if (err) return next(errorHandler(403 ,"Token expired "));
+    req.user = user;
+    next();
+>>>>>>> parent of 9eb9d6b (initial commit)
   });
 };
 
@@ -34,6 +49,7 @@ export const updateUser = async (req, res, next) => {
 
     res.status(200).json(rest);
   } catch (error) {
+<<<<<<< HEAD
     next(error);
   }
 };
@@ -84,3 +100,8 @@ export const getUser = async (req, res, next) => {
     next(error);
   }
 };
+=======
+    next()
+  }
+};
+>>>>>>> parent of 9eb9d6b (initial commit)

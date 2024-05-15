@@ -68,6 +68,7 @@ export const google = async (req, res, next) => {
     next(error);
   }
 };
+<<<<<<< HEAD
 
 export const signOut = async (req, res, next) => {
   try {
@@ -77,3 +78,5 @@ export const signOut = async (req, res, next) => {
     next(error);
   }
 };
+=======
+>>>>>>> parent of 9eb9d6b (initial commit)

@@ -11,7 +11,14 @@ import OAuth from '../components/OAuth';
 export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
+<<<<<<< HEAD
   const navigate = useNavigate();
+=======
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const navigator = useNavigate();
+>>>>>>> parent of 9eb9d6b (initial commit)
   const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({
@@ -22,11 +29,17 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+<<<<<<< HEAD
       if (formData.email!==undefined && formData.password!==undefined){
 
         dispatch(signInStart());
         const res = await fetch('/api/auth/signin', {
         method: 'POST',
+=======
+      dispatch(signIn());
+      const res = await fetch("/api/auth/sign-in", {
+        method: "POST",
+>>>>>>> parent of 9eb9d6b (initial commit)
         headers: {
           'Content-Type': 'application/json',
         },
@@ -39,6 +52,7 @@ export default function SignIn() {
         return;
       }
       dispatch(signInSuccess(data));
+<<<<<<< HEAD
       navigate('/');
     }else{
       dispatch(signInFailure('Please enter all fields'));
@@ -46,6 +60,12 @@ export default function SignIn() {
     }
     } catch (error) {
       dispatch(signInFailure(error.message));
+=======
+      navigator("/");
+    } catch (err) {
+      console.log(err);
+      dispatch(signInFailure(err));
+>>>>>>> parent of 9eb9d6b (initial commit)
     }
   };
   return (
@@ -77,6 +97,7 @@ export default function SignIn() {
         </button>
         <OAuth/>
       </form>
+<<<<<<< HEAD
       <div className='flex gap-2 mt-5'>
         <p>Dont have an account?</p>
         <Link to={'/sign-up'}>
@@ -84,6 +105,9 @@ export default function SignIn() {
         </Link>
       </div>
       {error && <p className='text-red-500 mt-5'>{error}</p>}
+=======
+      <div className="text-red-500 mx-4">{error ? error.message||'Something went wrong' :'' }</div>
+>>>>>>> parent of 9eb9d6b (initial commit)
     </div>
   );
 }
