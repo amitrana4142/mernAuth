@@ -1,101 +1,89 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { signIn, signInSuccess, signInFailure } from "../redux/user/userSlice";
-import { useDispatch, useSelector } from "react-redux";
-import OAuth from "./OAuth";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from '../redux/user/userSlice';
+import OAuth from '../components/OAuth';
 
-function Signin() {
+export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
-  const [inpError, setinpError] = useState(null)
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-  const navigator = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (formData.email !== undefined && formData.password!==undefined){
-        setinpError(null)
-      dispatch(signIn());
-      const res = await fetch("/api/auth/sign-in", {
-        method: "POST",
+      if (formData.email!==undefined && formData.password!==undefined){
+
+        dispatch(signInStart());
+        const res = await fetch('/api/auth/signin', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
-
       const data = await res.json();
+      console.log(data);
       if (data.success === false) {
-        dispatch(signInFailure(data));
+        dispatch(signInFailure(data.message));
         return;
       }
       dispatch(signInSuccess(data));
-      navigator("/");
+      navigate('/');
     }else{
-
-      setinpError('Please fill all the details')
+      dispatch(signInFailure('Please enter all fields'));
+      
     }
-    } catch (err) {
-      console.log(err);
-      dispatch(signInFailure(err));
+    } catch (error) {
+      dispatch(signInFailure(error.message));
     }
   };
   return (
-    <div className="max-w-lg p-4 mx-auto">
-      <h1 className="text-3xl text-center font-semibold">Sign In</h1>
-      <form
-        onSubmit={handleSubmit}
-        method="post"
-        className="flex flex-col gap-4 p-4"
-      >
-        {/* <input
-          onChange={handleChange}
-          type="text"
-          className="bg-gray-100 p-3 rounded-lg"
-          name="username"
-          id="username"
-          placeholder="Username"
-        /> */}
+    <div className='p-3 max-w-lg mx-auto'>
+      <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input
-          type="email"
-          className="bg-gray-100 p-3 rounded-lg"
-          name="email"
+          type='email'
+          placeholder='email'
+          className='border p-3 rounded-lg'
+          id='email'
           onChange={handleChange}
-          id="useremail"
-          placeholder="Email"
         />
         <input
+          type='password'
+          placeholder='password'
+          className='border p-3 rounded-lg'
+          id='password'
           onChange={handleChange}
-          type="password"
-          className="bg-gray-100 p-3 rounded-lg"
-          name="password"
-          id="userpass"
-          placeholder="Password"
+          maxLength='32'
+          minLength='8'
         />
+
         <button
-          type="submit"
           disabled={loading}
-          className="bg-green-700 p-4 text-white rounded-xl uppercase hover:opacity-95 disabled:opacity-80"
-          name="submit"
+          className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'
         >
-          {loading ? "Loading..." : "sign in"}
+          {loading ? 'Loading...' : 'Sign In'}
         </button>
-        <OAuth />
-        <div className="flex mx-1 gap-2">
-          <p>Don't have an account?</p>
-          <Link to="/sign-up">
-            <span className="text-blue-600 ">SignUp</span>
-          </Link>
-        </div>
+        <OAuth/>
       </form>
-      <div className="text-red-500 mx-4">{error ? error.message||'Something went wrong' :'' }</div>
-      <p className="text-red-500 mx-4 ">{inpError && inpError}</p>
+      <div className='flex gap-2 mt-5'>
+        <p>Dont have an account?</p>
+        <Link to={'/sign-up'}>
+          <span className='text-blue-700'>Sign up</span>
+        </Link>
+      </div>
+      {error && <p className='text-red-500 mt-5'>{error}</p>}
     </div>
   );
 }
-
-export default Signin;
